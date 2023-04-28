@@ -1,0 +1,102 @@
+---
+title: "Map 3D"
+author: "John Coene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Map 3D}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(echarts4r)
+
+e_common(
+    font_family = "Raleway"
+)
+```
+
+`e_map_3d` family is similar to `e_geo_3d` `e_map`, or `e_globe`.
+
+## Choropleth
+
+```{r}
+choropleth <- data.frame(
+  countries = c("France", "Brazil", "China", "Russia", "Canada", "India", "United States",
+                "Argentina", "Australia"),
+  values = round(runif(9, 10, 25))
+)
+
+choropleth %>% 
+  e_charts(countries) %>% 
+  e_map_3d(values, shading = "lambert") %>% 
+  e_visual_map(values) # scale to values
+```
+
+## Buildings
+
+```{r}
+buildings <- jsonlite::read_json(
+  paste0(
+    "https://ecomfe.github.io/echarts-examples/",
+    "public/data-gl/asset/data/buildings.json"
+  )
+)
+
+heights <- purrr::map(buildings$features, "properties") %>% 
+  purrr::map("height") %>% 
+  unlist()
+  
+names <- purrr::map(buildings$features, "properties") %>% 
+  purrr::map("name") %>% 
+  unlist()
+  
+data <- dplyr::tibble(
+  name = names,
+  value = round(runif(length(names), 0, 1), 6),
+  height = heights / 10
+)
+
+data %>% 
+  e_charts() %>% 
+  e_map_register("buildings", buildings) %>%
+  e_map_3d_custom(name, value, height) %>% 
+  e_visual_map(
+    show = FALSE,
+    min = 0.4,
+    max = 1
+  )
+```
+
+## GeoJSON
+
+The companion package [echarts4r.maps](https://echarts4r-maps.john-coene.com) comes with 215 maps.
+
+You can install the package with:
+
+```r
+install.packages("remotes")
+remotes::install_github('JohnCoene/echarts4r.maps')
+```
+
+View the full list of maps with `echarts4r.maps::em_bank()`.
+
+```{r}
+library(echarts4r.maps)
+
+USArrests$state <- row.names(USArrests) # add states as column
+
+USArrests %>% 
+  e_charts(state) %>%
+  em_map("USA") %>% 
+  e_map_3d(Murder, map = "USA") %>% 
+  e_visual_map(Murder)
+```
+
+You can also use your own geoJSON with `e_map_register`.

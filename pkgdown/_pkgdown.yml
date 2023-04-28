@@ -1,0 +1,119 @@
+url: http://echarts4r.john-coene.com
+
+template:
+  path: pkgdown/templates
+  params:
+    bootswatch: lumen
+    ganalytics: UA-74544116-1
+    docsearch:
+      api_key: f67fcda57c44388a248e49a457aa4fe7
+      index_name: echarts4r
+
+articles:
+  - title: "Usage"
+    desc: >
+      Get Familiar with echarts4r.
+    contents:
+    - get_started
+    - advanced
+    - chart_types
+    - map
+    - geo
+    - map3d
+    - geo3d
+    - globe
+    - threeD
+    - gl
+    - graph
+    - pictorial
+    - grid
+    - brush
+    - stats
+    - toolbox
+    - tooltip
+    - shiny
+    - themes
+
+development:
+  mode: release
+
+navbar:
+  title: "echarts4r"
+  left:
+    - icon: fa-home
+      href: index.html
+    - icon: fa-balance-scale
+      href: LICENSE.html
+    - icon: fa-newspaper-o
+      href: news/index.html
+    - icon: fa-code
+      href: "reference/"
+    - icon: fa-paint-brush
+      href: articles/gallery.html
+    - text: "Guide"
+      menu: 
+        - text: "Get Started"
+          href: articles/get_started.html
+        - text: "Advanced"
+          href: articles/advanced.html
+    - text: "Charts"
+      menu:
+        - text: "Chart Types"
+          href: articles/chart_types.html
+        - text: "Web GL"
+          href: articles/gl.html
+        - text: "Graph"
+          href: articles/graph.html
+        - text: "Statistical"
+          href: articles/stats.html
+        - text: "Pictorial"
+          href: articles/pictorial.html
+        - text: "3D"
+          href: articles/threeD.html
+    - text: "Geospatial"
+      menu:
+        - text: "Map"
+          href: articles/map.html
+        - text: "Geo"
+          href: articles/geo.html
+        - text: "Map 3D"
+          href: articles/map3d.html
+        - text: "Geo 3D"
+          href: articles/geo3d.html
+        - text: "Globe"
+          href: articles/globe.html
+        - text: "Leaflet & Mapbox"
+          href: articles/leaflet-mapbox.html
+        - text: "GeoJSON"
+          href: articles/make-geo-json.html
+    - text: "Style"
+      menu:
+        - text: "Grid & Axis"
+          href: articles/grid.html
+        - text: "Brush & Slide"
+          href: articles/brush.html
+        - text: "Arrange & Connect"
+          href: articles/connect.html
+        - text: "Toolbox"
+          href: articles/toolbox.html
+        - text: "Tooltip"
+          href: articles/tooltip.html
+        - text: "Actions & Buttons"
+          href: articles/actions-buttons.html
+        - text: "Graphics"
+          href: articles/graphics.html
+        - text: "Mark"
+          href: articles/mark.html
+        - text: "Themes"
+          href: articles/themes.html
+    - text: "Shiny" 
+      href: articles/shiny.html
+    - text: "Timeline" 
+      href: articles/timeline.html
+  right:
+    - icon: fa-github fa-lg
+      href: https://github.com/JohnCoene/echarts4r
+
+authors:
+  John Coene:
+    href: http://john-coene.com

@@ -1,0 +1,108 @@
+---
+title: "Geo 3D"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Geo 3D}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(echarts4r)
+
+e_common(
+    font_family = "Raleway"
+)
+```
+
+`e_geo_3d` family is similar to `e_geo_3d` `e_map`, `e_map_3d` or `e_globe`.
+
+## Height Choropleth
+
+```{r}
+choropleth <- data.frame(
+  countries = c("France", "Brazil", "China", "Russia", "Canada", "India", "United States",
+                "Argentina", "Australia"),
+  height = runif(9, 1, 5)
+)
+
+choropleth %>% 
+  dplyr::arrange(-height) %>% 
+  e_color_range(height, color) %>% 
+  e_charts(countries) %>% 
+  e_geo_3d(height, color)
+```
+
+## Lines
+
+```{r}
+flights <- read.csv(
+  paste0("https://raw.githubusercontent.com/plotly/datasets/",
+         "master/2011_february_aa_flight_paths.csv")
+)
+
+flights %>% 
+  e_charts() %>% 
+  e_geo_3d() %>% 
+  e_lines_3d(
+    start_lon, 
+    start_lat, 
+    end_lon, 
+    end_lat,
+    name = "flights",
+    coord_system = "geo3D",
+    lineStyle = list(normal = list(curveness = 0.3)),
+    effect = list(show = TRUE)
+   )
+```
+
+## Bars
+
+```{r}
+url <- paste0("https://ecomfe.github.io/echarts-examples/",
+              "public/data-gl/asset/data/population.json")
+data <- jsonlite::fromJSON(url)
+data <- as.data.frame(data)
+names(data) <- c("lon", "lat", "value")
+
+data %>% 
+  e_charts(lon) %>% 
+  e_geo_3d() %>% 
+  e_bar_3d(lat, value, coord_system = "geo3D") %>% 
+  e_visual_map()
+```
+
+## GeoJSON
+
+The companion package [echarts4r.maps](https://echarts4r-maps.john-coene.com) comes with 215 maps.
+
+You can install the package with:
+
+```r
+install.packages("remotes")
+remotes::install_github('JohnCoene/echarts4r.maps')
+```
+
+View the full list of maps with `echarts4r.maps::em_bank()`.
+
+```{r}
+library(echarts4r.maps)
+
+USArrests$state <- row.names(USArrests) # add states as column
+
+USArrests %>% 
+  e_color_range(Murder, Color) %>% 
+  e_charts(state) %>%
+  em_map("USA") %>% 
+  e_geo_3d(Murder, Color, type = "USA", regionHeight = 1) %>% 
+  e_visual_map(Murder)
+```
+
+You can also use your own geoJSON with `e_map_register`.

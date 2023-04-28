@@ -1,0 +1,142 @@
+---
+title: "Statistical plots"
+author: "John Coene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{John Coene}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(echarts4r)
+
+e_common(
+    font_family = "Raleway"
+)
+```
+
+## Confidence Bands
+
+```{r}
+data <- jsonlite::fromJSON(
+    paste0(
+        "https://ecomfe.github.io/echarts-examples/public/",
+        "data/asset/data/confidence-band.json"
+    )
+)
+
+data %>% 
+  dplyr::mutate(
+    date = as.Date(date, "%Y-%m-%d"),
+    l = l + value,
+    u = u - value
+  ) %>% 
+  e_charts(date) %>% 
+  e_line(value, symbol = "none") %>% 
+  e_band(
+    l, u, 
+    areaStyle = list(list(color = "grey"), list(color = "grey"))
+  )
+```
+
+## Correlation Matrix
+
+```{r}
+cor(mtcars) %>% 
+  e_charts() %>% 
+  e_correlations(order = "hclust") %>% 
+  e_tooltip()
+```
+
+## Error bars
+
+```{r}
+df <- data.frame(
+  x = factor(c(1, 2)),
+  y = c(1, 5),
+  upper = c(1.1, 5.3),
+  lower = c(0.8, 4.3)
+)
+
+df %>% 
+  e_charts(x) %>% 
+  e_bar(y) %>% 
+  e_error_bar(lower, upper)
+```
+
+## Boxplot
+
+```{r}
+df <- data.frame(
+  x = c(
+    rnorm(100),
+    runif(100, -5, 10),
+    rnorm(100, 10, 3)
+  ),
+  grp = c(
+    rep(LETTERS[1], 100),
+    rep(LETTERS[2], 100),
+    rep(LETTERS[3], 100)
+  )
+)
+
+df %>% 
+  group_by(grp) %>% 
+  e_charts() %>% 
+  e_boxplot(x)
+```
+
+## Histogram
+
+```{r}
+# data.frame
+df <- data.frame(
+  x = 1:100,
+  y = rnorm(100, 20, 12)
+)
+
+df %>% 
+  e_charts() %>% 
+  e_histogram(y) %>% 
+  e_tooltip()
+```
+
+## Density
+
+Plot the density on a different Y axis as its range differs much from the that of the histogram.
+
+```{r}
+df %>%
+  e_charts() %>% 
+  e_histogram(y) %>% 
+  e_density(y, name = "density", areaStyle = list(opacity = .4), 
+            smooth = TRUE, y_index = 1) %>% 
+  e_tooltip()
+```
+
+## Linear
+
+```{r}
+iris %>% 
+  group_by(Species) %>% 
+  e_charts(Sepal.Length) %>% 
+  e_line(Sepal.Width) %>% 
+  e_lm(Sepal.Width ~ Sepal.Length) %>% 
+  e_x_axis(min = 4)
+```
+
+## Polynomial
+
+```{r}
+mtcars %>% 
+  e_charts(disp) %>% 
+  e_scatter(mpg, qsec) %>% 
+  e_loess(mpg ~ disp)
+```

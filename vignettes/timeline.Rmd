@@ -1,0 +1,196 @@
+---
+title: "Timeline"
+futhor: "John Coene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Timeline}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(dplyr)
+library(quantmod)
+options("getSymbols.warning4.0"=FALSE)
+options("getSymbols.yahoo.warning"=FALSE)
+library(echarts4r)
+
+e_common(
+    font_family = "Raleway"
+)
+```
+
+## Introduction
+
+`echarts4r` version `0.2.1` supports the timeline component!
+
+Let's create some phoney data to demonstrate.
+
+```{r}
+# fake data
+df <- data.frame(
+  year = c(
+    rep(2016, 25),
+    rep(2017, 25),
+    rep(2018, 25),
+    rep(2019, 25)
+  ),
+  x = rnorm(100),
+  y = rnorm(100),
+  grp = c(
+    rep("A", 50),
+    rep("B", 50)
+  )
+) 
+```
+
+While on a "standard" chart you group data to distinguish between categories, to take advantage of the timeline component, you group them by _time steps_ then set `timeline` to `TRUE`when initialise the chart.
+
+By changing a single argument (`timeline`) you go from:
+
+```{r}
+df %>%
+  group_by(year) %>% 
+  e_charts(x) %>% 
+  e_scatter(y, symbol_size = 5)
+```
+
+To an acutal timeline:
+
+```{r}
+df %>%
+  group_by(year) %>% 
+  e_charts(x, timeline = TRUE) %>% 
+  e_scatter(y, symbol_size = 5)
+```
+
+## Supported types
+
+It works with the vast majority chart types, they are listed below and in the man page of `e_charts`.
+
+- `e_bar`
+- `e_line`
+- `e_step`
+- `e_area`
+- `e_scatter`
+- `e_effect_scatter`
+- `e_candle`
+- `e_heatmap`
+- `e_pie`
+- `e_line_3d`
+- `e_lines_3d`
+- `e_bar_3d`
+- `e_lines`
+- `e_scatter_3d`
+- `e_scatter_gl`
+- `e_histogram`
+- `e_lm`
+- `e_loess`
+- `e_glm`
+- `e_density`
+- `e_pictorial`
+- `e_boxplot`
+- `e_map`
+- `e_map_3d`
+- `e_line_3d`
+- `e_gauge`
+
+All options, i.e.: `e_tooltip` or `e_globe`, work with the timeline component.
+
+```{r}
+df %>% 
+  group_by(year) %>% 
+  e_charts(x, timeline = TRUE) %>% 
+  e_scatter(y) %>% 
+  e_loess(y ~ x)
+```
+
+## General Options
+
+You can pass options to the timeline with `e_timeline_opts`.
+
+```{r}
+library(dplyr)
+library(echarts4r.maps)
+
+df <- USArrests
+
+# scale 0 to 1
+.scl <- function(x){
+    (x - min(x)) / (max(x) - min(x))
+}
+
+df %>% 
+  mutate(
+      State = row.names(.),
+      Rape = .scl(Rape),
+      Murder = .scl(Murder),
+      Assault = .scl(Assault)
+  ) %>% 
+  select(State, Rape, Murder, Assault) %>% 
+  group_by(State) %>% 
+  tidyr::gather("Key",  "Value", Murder, Rape, Assault) %>% 
+  group_by(Key) %>% 
+  e_charts(State, timeline = TRUE) %>% 
+  em_map("USA") %>% 
+  e_map(Value, map = "USA") %>% 
+  e_visual_map(min = 0, max = 1) %>% 
+  e_timeline_opts(autoPlay = TRUE) %>% 
+  e_timeline_serie(
+    title = list(
+      list(text = "Murder", subtext = "Percentage based on arrests"),
+      list(text = "Rape", subtext = "Percentage based on arrests"),
+      list(text = "Assault", subtext = "Percentage based on arrests")
+    )
+  )
+```
+
+## Time step options
+
+The function `e_timeline_opts` is used to set general options on the timeline, i.e.: auto-play like above. The full list of options is on the [official website](https://ecomfe.github.io/echarts-doc/public/en/option.html#timeline).
+
+However, we can also set options specific to each timestep with `e_timeline_serie`. The arguments to this function differ quite a bit from the rest of the package. As we have to assign options to multiple timesteps at once we need to pass vectors or lists of options, the length of the timesteps.
+
+```{r}
+library(quantmod)
+
+getSymbols(c("GS", "GOOG")) # Goldman Sachs & Google
+GS <- as.data.frame(GS)
+GOOG <- as.data.frame(GOOG)
+
+colnames <- c("Open", "High", "Low", "Close", "Volume", "Adjusted")
+names(GS) <- colnames
+names(GOOG) <- colnames
+
+GS$sym <- "GS"
+GOOG$sym <- "GOOG"
+
+data <- bind_rows(GS, GOOG)
+data$date <- rep(row.names(GS), 2)
+
+data %>% 
+  group_by(sym) %>% 
+  e_charts(date, timeline = TRUE) %>% 
+  e_candle(Open, Close, Low, High, legend = FALSE) %>% 
+  e_y_axis(max = 1500) %>% 
+  e_tooltip(trigger = "axis") %>% 
+  e_timeline_opts(
+    axis_type = "category",
+    playInterval = 1500,
+    top = 5,
+    right = 50,
+    left = 200
+  ) %>% 
+  e_datazoom() %>% 
+  e_timeline_serie(
+    title = list(
+      list(text = "Goldman Sachs"),
+      list(text = "Google")
+    )
+  ) 
+```

@@ -1,0 +1,58 @@
+---
+title: "Toolbox"
+author: "John Coene"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Toolbox}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+
+library(echarts4r)
+
+e_common(
+    font_family = "Raleway"
+)
+```
+
+The toolbox allows you to add neat little interactive functions to your plots.
+
+## Features
+
+- saveAsImage
+- brush
+- restore
+- dataView
+- dataZoom
+- magicType
+
+## Save plot
+
+```{r}
+mtcars %>% 
+  e_charts(qsec) %>% 
+  e_line(mpg, smooth = TRUE) -> echart
+
+echart %>% e_toolbox_feature(feature = "saveAsImage") # hit the download button!
+```
+
+## data Zoom
+
+```{r}
+echart %>% e_toolbox_feature(feature = "dataZoom")
+```
+
+## data view
+
+```{r}
+echart %>% e_toolbox_feature(feature = "dataView")
+```
+
+See the [official documentation](https://ecomfe.github.io/echarts-doc/public/en/option.html#toolbox.feature) for the full list.
